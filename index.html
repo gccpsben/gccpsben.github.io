@@ -2,6 +2,7 @@
     <head>
         <title></title>
         <meta charset="ISO-8859-1"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body style="position: fixed; height: 100vh; z-index:909; overflow-y: hidden; margin: 0px; padding: 0px; background:black;">
         <style>
@@ -9,6 +10,7 @@
             {
                 color: inherit;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                touch-action: manipulation;
             }
             .nos
             {
@@ -19,7 +21,7 @@
         </style>
 
         <!-- The panel listening for touch event: -->
-        <div id="flash" class="nos" style="position:fixed; margin:0px; bottom:0px; height:100%; width:100%;">
+        <div id="flash" class="nos" style="position:fixed; margin:0px; bottom:0px; height:100%; width:100%; z-index:-1;">
             
         </div>
 
@@ -65,6 +67,7 @@
             <button style="display:none; margin:0px; border:0px; height:50px; background:#005463; color:white; width:100px; height:100%;">Settings</button>
         </div>
         <script>
+
             var taps = 0;
             var lastTapTime = new Date();
             var firstTapTime = new Date();
@@ -90,14 +93,13 @@
 
             if (!/Android|webOS|iPhone|iPad|Mac|Macintosh|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
             {
-                document.getElementById("flash").onclick = function () { document.body.ontouchstart(); };
+                document.body.onclick = function () { document.body.ontouchstart(); };
                 document.body.onkeydown = function () { document.body.ontouchstart(); };
             }
 
             document.body.ontouchstart = function ()
             {
-
-                if (!inProgress)  { firstTapTime = Date.now(); bpms = []; }
+                if (!inProgress)  { firstTapTime = Date.now(); bpms = []; reset(); }
                 inProgress = true;
                 taps++;
 
@@ -119,11 +121,13 @@
                 if (avgBPM <= 350) flash.style.opacity = 0.8;
                 if (avgBPM <= 350) flash.style.background = taps % 4 == 0 ? heavyTapColor : normalTapColor;
                 else flash.style.background = taps % 4 == 0 ? "" : "";
+                updateView();
+
                 document.getElementById("currentBeatLabel").innerHTML = taps % 4 + 1;
 
                 document.getElementById("BPMRangeLabel").innerHTML = `Bounds: ${Math.round(minBPM)} - ${Math.round(maxBPM)}  (${'&plusmn;'}${Math.round((maxBPM - minBPM) / 2)} | ${Math.round(BPMtoMs(minBPM) - BPMtoMs(maxBPM))}ms)`;
                 document.getElementById("currentTapsLabel").innerHTML = taps + " taps";
-                document.getElementById("currentBPMLabel").innerHTML = Math.round(avgBPM) + " BPM";
+                document.getElementById("currentBPMLabel").innerHTML = `${Math.round(avgBPM)} | ${Math.round(avgBPM / 2)} | ${Math.round(avgBPM / 4)} BPM`;
                 milisecondsOfInactivity = 0;
 
                 lastTapTime = Date.now();
@@ -138,7 +142,7 @@
                 return 60000 / bpm;
             }
 
-            setInterval(function ()
+            function updateView()
             {
                 if (inProgress)
                 {
@@ -149,13 +153,18 @@
                 {
                     document.getElementById("titleLabel").style.display = "";
                 }
-                if (milisecondsOfInactivity >= 2000) inProgress = false;
-                milisecondsOfInactivity += 1;
+
+                if (lastTapTime - new Date() <= -2000) inProgress = false;
 
                 if (flash.style.opacity == "") flash.style.opacity = 1;
-                flash.style.opacity = parseFloat(flash.style.opacity) - 0.01;
+                flash.style.opacity = Math.max(parseFloat(flash.style.opacity) - 0.1, 0);
+            }
 
-            }, 1);
+            setInterval(function ()
+            {
+                updateView();
+
+            }, 100);
 
             function reset()
             {
@@ -165,6 +174,8 @@
                 milisecondsOfInactivity = 0;
                 document.getElementById("currentTapsLabel").innerHTML = 0;
                 document.getElementById("currentBPMLabel").innerHTML = "---";
+                minBPM = 0;
+                maxBPM = 0;
             }
 
         </script>
