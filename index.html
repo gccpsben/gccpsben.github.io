@@ -99,6 +99,9 @@
 
             document.body.ontouchstart = function ()
             {
+                var audio = new Audio('hitsound.wav');
+                audio.play();
+
                 if (!inProgress)  { firstTapTime = Date.now(); bpms = []; reset(); }
                 inProgress = true;
                 taps++;
