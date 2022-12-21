@@ -1,0 +1,72 @@
+<html>
+    <body style="margin:0px;">
+        <script>
+        function groupGen()
+        {
+            document.getElementById(`extrasTitle`).innerText = "";
+            document.getElementById(`groupResultPanel`).innerText = "";
+            var noMembers = parseInt(document.getElementById(`membersCountInput`).value);
+            var min = parseInt(document.getElementById(`membersMinInput`).value);
+            var max = parseInt(document.getElementById(`membersMaxInput`).value);
+            var isRAssign = document.getElementById(`noExtrasCheckbox`).checked;
+            var output = [];
+            var source = shuffleArray(Array.from({length:max-min+1}, (v,k)=>min+k));
+            while (source.length >= noMembers)
+            {
+                output.push(source.splice(0,noMembers));
+            }
+            if (isRAssign) output[0].push(...source);
+            else document.getElementById(`extrasTitle`).innerText = `Extras: ${source.reduce((acc, n) => { return `${acc}, ${n}` })}`;
+            var c = 1;
+            output.forEach(x => 
+            {
+                document.getElementById(`groupResultPanel`).innerText += `Group ${c}: ${x.reduce((acc, n) => { return `${acc}, ${n}` })}\n`
+                c++;
+            });
+            return output;
+        }
+        function shuffleArray(array) 
+        {
+            return array.map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+        }
+        </script>
+        <div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:#222222;">
+            <div style="display:inline-block;" class="smoothClose" id="groupArea">
+                
+                <h3  style="font-size:20px; display:inline; color:rgb(153, 153, 153);">Group generation</h3>
+    
+                <br><br>
+                
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);">Generate </h3>
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);">groups with </h3>
+                <input id="membersCountInput"  oninput="this.value=this.value.replace(/[^0-9]/g,''); " min="1" step="1" style="width:50px;" type="number" value="3">
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);">equal number of members in each group by picking members from</h3>
+                <input id="membersMinInput" oninput="this.value=this.value.replace(/[^0-9]/g,''); " min="1" step="1" style="width:50px;" type="number" value="1">
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);"> to</h3>
+                <input id="membersMaxInput" oninput="this.value=this.value.replace(/[^0-9]/g,''); " min="1" step="1" style="width:50px;" type="number" value="31">
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);"> randomly.</h3>
+                
+                <br>
+                <br>
+                
+                <br><br><br>
+                <input id="noExtrasCheckbox" type="checkbox">
+                <h3 style="font-size:13px; display:inline; color:rgb(153, 153, 153);">Randomly assign extras into generated groups</h3>
+                <br>
+                
+                <br><br><br>
+                <div id="groupResultPanel" style="overflow:visible; color:rgb(153, 153, 153);">
+                </div>
+                
+                <br>
+                <h3 id="extrasTitle" style="font-size:17px; display:inline; color:rgb(153, 153, 153);"></h3>
+                <br><br><button onclick="groupGen()" style="margin-bottom:45px">Generate</button><br>
+            </div>
+        </div>
+        <style>
+            /* * { color:white; } */
+        </style>
+    </body>
+</html>
